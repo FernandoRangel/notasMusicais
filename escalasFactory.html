@@ -1,0 +1,81 @@
+<body>
+    <div>
+        <p id="pergunta"></p>
+
+        <div id="alternativas" style="margin-bottom: 10px;">
+        </div>
+
+        <p id="resultado" style="font-weight: bold;"></p>
+        <button id="jogarNovamente" onclick="javascript:location.reload()" style="display:none;">Jogar Novamente</button>
+    </div>
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    var arrayNotas = ["A", "Bb", "B", "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab"];
+    var arrayNotas = ["Lá", "Si Bemol", "Si", "Dó", "Dó Sustenido", "Ré", "Mi Bemol", "Mi", "Fa", "Fa Sustenido", "Sol", "Lá Bemol"];
+    var intervaloMaior = [2, 2, 1, 2, 2, 2];
+    var intervaloMenor = [2, 1, 2, 2, 1, 2];
+    var respostaCorreta = "";
+
+    function escalaFactory(tom, escala) {
+        var arrayRetorno = [];
+        var posNota = arrayNotas.indexOf(tom);
+
+        arrayRetorno.push(tom);
+        escala.forEach(intervalo => {
+            posNota += intervalo;
+            posNota = (posNota > (arrayNotas.length-1)) ? posNota - arrayNotas.length : posNota;
+            arrayRetorno.push(arrayNotas[posNota])
+        });
+
+        return arrayRetorno;
+    }
+
+    function randomInteger(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function shuffleArray(array) {
+        for (var i = array.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+    }
+
+    function confirmar(resposta) {
+        if(respostaCorreta === resposta){
+            $("#resultado").html("Acertou").css("color", "green");
+        }
+        else {
+            $("#resultado").html("Errou, a resposta é: " + respostaCorreta).css("color", "red");
+        }
+
+        $("#jogarNovamente").css("display", "block");
+    }
+    
+    $(document).ready(function(){
+        var notaRandom = arrayNotas[randomInteger(0, 11)];
+        while (notaRandom === "C" || notaRandom === "F") {
+            notaRandom = arrayNotas[randomInteger(0, 11)];
+        }
+
+        $("#pergunta").html("Qual a 5ª da nota: " + notaRandom);
+        respostaCorreta = escalaFactory(notaRandom, intervaloMaior)[4];
+
+        var alternativas = [respostaCorreta];
+        while (alternativas.length < 7) {
+            var novaAlternativa = arrayNotas[randomInteger(0, 11)];
+            if(alternativas.indexOf(novaAlternativa) == -1 && novaAlternativa !== notaRandom)
+                alternativas.push(novaAlternativa);
+        }
+
+        shuffleArray(alternativas);
+
+        alternativas.forEach(alternativa => {
+            $("#alternativas").append(`<button onclick="confirmar('`+alternativa+`')">`+alternativa+`</button>`);
+        });
+    });
+</script>
